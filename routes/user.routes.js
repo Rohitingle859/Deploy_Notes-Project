@@ -8,24 +8,40 @@ const jwt = require("jsonwebtoken")
 const userRouter = express.Router()
 
 
-userRouter.post("/register",async(req,res)=>{
-    //console.log("Request body:", req.body);
-    const {username,email,password} =req.body // destrucutring i need to has my password 
-    try {
-        bcrypt.hash(password,8,async(err, hash)=> {
-            if(err){
-                res.status(200).json({err:err})
-            }
-            else{
-                const user = UserModel({username,email,password:hash})
-                await user.save()
-                res.status(200).json({msg:"The New user has been registered...!"})
-            }
-        })
-    } catch (error) {
-        res.status(400).json({error,err})
-    }
-})
+// userRouter.post("/register",async(req,res)=>{
+//     //console.log("Request body:", req.body);
+//     const {username,email,password} =req.body // destrucutring i need to has my password 
+//     try {
+//          const hash  = await bcrypt.hash(password,8,async(err, hash)=> {
+//             if(err){
+//                 res.status(200).json({err:err})
+//             }
+//             else{
+//                 const user = UserModel({username,email,password:hash})
+//                 await user.save()
+
+//                 res.status(200).json({msg:"The New user has been registered...!"})
+//             }
+//         })
+//     } catch (error) {
+//         res.status(400).json({error,err})
+//     }
+// })
+userRouter.post("/register", async (req, res) => {
+  const { username, email, password } = req.body;
+
+  try {
+    // Hash password properly
+    const hash = await bcrypt.hash(password, 8);
+
+    const user = new UserModel({ username, email, password: hash });
+    await user.save();
+
+    res.status(201).json({ msg: "The New user has been registered...!" });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
 
 
 userRouter.post("/login", async(req,res)=>{
